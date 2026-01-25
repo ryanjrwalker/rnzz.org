@@ -193,4 +193,217 @@ function initInventory() {
       id: uid("list"),
       skinId: skin.id,
       askPrice,
-      status: "OPEN
+      status: "OPEN",
+      createdAt: Date.now()
+    });
+    save(LS.LIST, listings);
+  }
+
+  function drawOffers() {
+    if (!offersGrid) return;
+    offersGrid.innerHTML = "";
+    const offers = load(LS.OFFERS, []);
+    const listings = load(LS.LIST, []);
+    const skins = load(LS.SKINS, []);
+
+    // offers on listings you created (we can’t truly know “you” without login,
+    // so in this demo: any listing is "yours" if it was created on this device)
+    if (!offers.length) {
+      offersGrid.innerHTML = `<div class="muted">No offers yet.</div>`;
+      return;
+    }
+
+    offers.forEach(o => {
+      const listing = listings.find(l => l.id === o.listingId);
+      const listingSkin = skins.find(s => s.id === listing?.skinId);
+      const offeredSkin = skins.find(s => s.id === o.offerSkinId);
+
+      const card = document.createElement("div");
+      card.className = "offer";
+      card.innerHTML = `
+        <div class="row">
+          <div style="font-weight:700">Offer</div>
+          <span class="badge">${o.status}</span>
+        </div>
+        <div class="muted" style="font-size:12px">
+          On: ${listingSkin ? listingSkin.name : "Unknown listing"}
+        </div>
+        <div>They offer: <b>${offeredSkin ? offeredSkin.name : "Unknown skin"}</b></div>
+        <div class="row">
+          <button class="btn" ${o.status !== "PENDING" ? "disabled" : ""} data-acc="${o.id}">Accept</button>
+          <button class="btn btn-ghost" ${o.status !== "PENDING" ? "disabled" : ""} data-rej="${o.id}">Reject</button>
+        </div>
+      `;
+
+      card.addEventListener("click", (e) => {
+        const acc = e.target?.dataset?.acc;
+        const rej = e.target?.dataset?.rej;
+        if (acc) acceptOffer(acc);
+        if (rej) rejectOffer(rej);
+      });
+
+      offersGrid.appendChild(card);
+    });
+  }
+
+  function acceptOffer(offerId) {
+    const offers = load(LS.OFFERS, []);
+    const listings = load(LS.LIST, []);
+    const inv = load(LS.INV, []);
+
+    const offer = offers.find(o => o.id === offerId);
+    if (!offer || offer.status !== "PENDING") return;
+
+    const listing = listings.find(l => l.id === offer.listingId);
+    if (!listing || listing.status !== "OPEN") return;
+
+    // listing closes, you receive offered skin into your inventory (demo)
+    listing.status = "CLOSED";
+    offer.status = "ACCEPTED";
+    inv.push({ id: uid("inv"), skinId: offer.offerSkinId });
+
+    save(LS.LIST, listings);
+    save(LS.OFFERS, offers);
+    save(LS.INV, inv);
+    draw();
+  }
+
+  function rejectOffer(offerId) {
+    const offers = load(LS.OFFERS, []);
+    const offer = offers.find(o => o.id === offerId);
+    if (!offer || offer.status !== "PENDING") return;
+    offer.status = "REJECTED";
+    save(LS.OFFERS, offers);
+    drawOffers();
+  }
+
+  function draw() {
+    const inv = load(LS.INV, []);
+    inventoryGrid.innerHTML = "";
+
+    if (!inv.length) {
+      inventoryGrid.innerHTML = `<div class="muted">Inventory empty. Click "Add random skin" or seed demo skins on Market.</div>`;
+    } else {
+      inv.forEach(i => {
+        const s = skinById(i.skinId);
+        if (!s) return;
+        const card = renderCard({
+          title: s.name,
+          rarity: s.rarity,
+          price: s.price,
+          ctaText: "List",
+          sub: "Click to create a listing",
+          onClick: () => {
+            createListingFromInv(i.id);
+            location.href = "index.html";
+          }
+        });
+        inventoryGrid.appendChild(card);
+      });
+    }
+
+    drawOffers();
+  }
+
+  draw();
+}
+
+// ---------- Trade page ----------
+function initTrade() {
+  const listingCard = document.getElementById("listingCard");
+  const offerGrid = document.getElementById("offerGrid");
+  const submitOfferBtn = document.getElementById("submitOfferBtn");
+  const selectedOffer = document.getElementById("selectedOffer");
+
+  if (!listingCard || !offerGrid) return;
+
+  const params = new URLSearchParams(location.search);
+  const listingId = params.get("id");
+  if (!listingId) {
+    listingCard.innerHTML = `<div class="muted">No listing selected.</div>`;
+    return;
+  }
+
+  const listings = load(LS.LIST, []);
+  const listing = listings.find(l => l.id === listingId);
+
+  if (!listing || listing.status !== "OPEN") {
+    listingCard.innerHTML = `<div class="muted">Listing not found or closed.</div>`;
+    return;
+  }
+
+  const skin = skinById(listing.skinId);
+  listingCard.innerHTML = "";
+  listingCard.appendChild(renderCard({
+    title: skin?.name || "Unknown skin",
+    rarity: skin?.rarity || "Unknown",
+    price: listing.askPrice,
+    ctaText: "",
+    sub: `Listing ID: ${listing.id.slice(-6)}`
+  }));
+
+  let chosenInvId = null;
+
+  function drawOfferOptions() {
+    const inv = load(LS.INV, []);
+    offerGrid.innerHTML = "";
+
+    if (!inv.length) {
+      offerGrid.innerHTML = `<div class="muted">You have no skins. Go to Inventory and add one.</div>`;
+      return;
+    }
+
+    inv.forEach(i => {
+      const s = skinById(i.skinId);
+      if (!s) return;
+      const card = renderCard({
+        title: s.name,
+        rarity: s.rarity,
+        price: s.price,
+        ctaText: "Select",
+        sub: chosenInvId === i.id ? "Selected ✅" : ""
+      });
+      card.addEventListener("click", () => {
+        chosenInvId = i.id;
+        selectedOffer.textContent = `Offering: ${s.name}`;
+        submitOfferBtn.disabled = false;
+        drawOfferOptions();
+      });
+      offerGrid.appendChild(card);
+    });
+  }
+
+  submitOfferBtn.addEventListener("click", () => {
+    if (!chosenInvId) return;
+
+    const inv = load(LS.INV, []);
+    const chosen = inv.find(i => i.id === chosenInvId);
+    if (!chosen) return;
+
+    // remove offered skin from inventory (demo escrow)
+    const inv2 = inv.filter(i => i.id !== chosenInvId);
+    save(LS.INV, inv2);
+
+    const offers = load(LS.OFFERS, []);
+    offers.push({
+      id: uid("offer"),
+      listingId,
+      offerSkinId: chosen.skinId,
+      status: "PENDING",
+      createdAt: Date.now()
+    });
+    save(LS.OFFERS, offers);
+
+    alert("Offer submitted! (Demo) The seller can accept/reject on Inventory page.");
+    location.href = "inventory.html";
+  });
+
+  drawOfferOptions();
+}
+
+(function boot() {
+  ensureData();
+  initMarket();
+  initInventory();
+  initTrade();
+})();
