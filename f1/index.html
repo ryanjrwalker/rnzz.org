@@ -3,20 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RNZZ — F1 Neon GP</title>
+  <meta name="description" content="Dodge traffic, stay on track and chase the best score." />
+  <title>Neon F1</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="logo">RNZZ <span>F1 NEON GP</span></div>
+      <div class="logo">NEON F1<span>BY RNZZ</span></div>
       <div class="sub">Arrow keys / WASD • Shift = Nitro • Space = Pause • R = Restart • Enter = Start</div>
     </div>
 
     <div class="pills">
-      <span class="pill">Local Best: <b id="best">0</b></span>
-      <span class="pill pill-live"><span class="dot"></span> LIVE</span>
+      <span class="pill">Best time: <b id="best">0</b></span>
+      <span class="pill pill-live"><span class="dot" aria-hidden="true"></span> LIVE</span>
     </div>
   </header>
 
@@ -29,7 +30,7 @@
         <div class="telemetry">
           <div class="stat">
             <div class="label">Speed</div>
-            <div class="value"><span id="speed">0</span><span class="unit"> km/h</span></div>
+            <div class="value"><span id="speed">0</span><span class="unit"> mp/h</span></div>
           </div>
 
           <div class="stat">
@@ -40,7 +41,7 @@
           <div class="stat">
             <div class="label">HP</div>
             <div class="value"><span id="hp">100</span><span class="unit">%</span></div>
-            <div class="bar">
+            <div class="bar" aria-label="Health bar">
               <div class="bar-fill" id="hpBar" style="width:100%"></div>
             </div>
           </div>
@@ -53,14 +54,14 @@
           <div class="stat">
             <div class="label">Nitro</div>
             <div class="value"><span id="nitro">READY</span></div>
-            <div class="bar bar-nitro">
+            <div class="bar bar-nitro" aria-label="Nitro status bar">
               <div class="bar-fill" id="nitroBar" style="width:100%"></div>
             </div>
           </div>
         </div>
 
         <div class="hint">
-          <div class="keys">
+          <div class="keys" aria-label="Controls">
             <span class="kbd">←</span><span class="kbd">→</span> steer
             <span class="kbd">↑</span> accel
             <span class="kbd">↓</span> brake
@@ -73,13 +74,12 @@
       <div class="card">
         <div class="card-title">Race Control</div>
         <div class="rc">
-          <button class="btn" onclick="window.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}))">Start</button>
-          <button class="btn btn-ghost" onclick="window.dispatchEvent(new KeyboardEvent('keydown',{key:' '}))">Pause</button>
-          <button class="btn btn-ghost" onclick="window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}))">Restart</button>
+          <button class="btn" id="btnStart" type="button">Start</button>
+          <button class="btn btn-ghost" id="btnPause" type="button">Pause</button>
+          <button class="btn btn-ghost" id="btnRestart" type="button">Restart</button>
         </div>
         <div class="muted small">
-          Tip: Staying clean increases combo multiplier over time.
-        </div>
+          </div>
       </div>
     </aside>
 
@@ -93,22 +93,25 @@
           </div>
 
           <div class="overlayText">
-            <div id="msg" class="msg"></div>
-            <div id="submsg" class="submsg"></div>
+            <div id="msg" class="msg" role="status" aria-live="polite"></div>
+            <div id="submsg" class="submsg" role="status" aria-live="polite"></div>
           </div>
         </div>
 
         <div class="canvas-wrap">
-          <canvas id="c" width="900" height="520"></canvas>
+          <canvas id="c" width="900" height="520">
+            Your browser doesn’t support the HTML canvas element.
+            Try updating your browser or using a modern one like Chrome/Edge/Firefox.
+          </canvas>
         </div>
 
         <!-- Mobile / touch controls -->
-        <div id="touch" class="touch">
-          <button data-k="left" aria-label="Left">◀</button>
-          <button data-k="right" aria-label="Right">▶</button>
-          <button data-k="up" aria-label="Accelerate">▲</button>
-          <button data-k="down" aria-label="Brake">▼</button>
-          <button data-k="nitro" class="nitro" aria-label="Nitro">NITRO</button>
+        <div id="touch" class="touch" aria-label="Touch controls">
+          <button data-k="left" aria-label="Left" type="button">◀</button>
+          <button data-k="right" aria-label="Right" type="button">▶</button>
+          <button data-k="up" aria-label="Accelerate" type="button">▲</button>
+          <button data-k="down" aria-label="Brake" type="button">▼</button>
+          <button data-k="nitro" class="nitro" aria-label="Nitro" type="button">NITRO</button>
         </div>
       </div>
     </section>
@@ -118,7 +121,7 @@
       <div class="card">
         <div class="card-title">Track Notes</div>
         <ul class="list">
-          <li>Traffic spawns in 3 lanes — plan your line early.</li>
+          <li>Traffic spawns in 3 lanes - plan your line early.</li>
           <li>Touching the shoulder drains points; off-track damages HP.</li>
           <li>Nitro drains fuel; short bursts are strongest.</li>
         </ul>
@@ -127,37 +130,44 @@
       <div class="card">
         <div class="card-title">About</div>
         <div class="muted small">
-          RNZZ F1 Neon GP is a single-file canvas racer. No assets, no backend, best score saved locally.
+          Neon F1 is a single-file canvas racer. No assets, no backend, best score saved locally.
         </div>
       </div>
     </aside>
   </main>
 
   <footer class="footer">
-    <span class="muted">© RNZZ Arcade • F1 Neon GP</span>
+    <span class="muted">© RNZZ • Neon F1</span>
   </footer>
 
-  <!-- Your game JS (paste your full JS here or link to a file) -->
-  <script src="game.js"></script>
+  <!-- Load game after DOM is parsed -->
+  <script src="game.js" defer></script>
 
-  <!-- Optional: mini UI helpers for HP/Nitro bars -->
+  <!-- UI helpers (no inline onclick; safer + cleaner) -->
   <script>
-    // If your JS is in game.js, this just mirrors displayed values into bars safely.
-    // It won’t break anything if elements are missing.
-    (function(){
+    window.addEventListener("DOMContentLoaded", () => {
+      // Hook buttons to existing key handlers without inline JS
+      const fireKey = (key) => window.dispatchEvent(new KeyboardEvent("keydown", { key }));
+
+      const btnStart = document.getElementById("btnStart");
+      const btnPause = document.getElementById("btnPause");
+      const btnRestart = document.getElementById("btnRestart");
+
+      btnStart?.addEventListener("click", () => fireKey("Enter"));
+      btnPause?.addEventListener("click", () => fireKey(" "));
+      btnRestart?.addEventListener("click", () => fireKey("r"));
+
+      // Bars (simple mirror)
       const hpBar = document.getElementById("hpBar");
       const nitroBar = document.getElementById("nitroBar");
       const hpEl = document.getElementById("hp");
       const nitroText = document.getElementById("nitro");
 
-      // Polling approach keeps it simple without modifying your game code
       setInterval(() => {
         if (hpBar && hpEl) {
           const hp = Math.max(0, Math.min(100, parseInt(hpEl.textContent || "0", 10) || 0));
           hpBar.style.width = hp + "%";
         }
-        // Nitro bar: if you want true fuel %, we can wire it into your JS directly.
-        // For now we animate: READY=100, CD=35, BOOST=70 (looks good)
         if (nitroBar && nitroText) {
           const t = (nitroText.textContent || "").toUpperCase();
           let p = 100;
@@ -165,8 +175,8 @@
           else if (t.includes("BOOST")) p = 70;
           nitroBar.style.width = p + "%";
         }
-      }, 120);
-    })();
+      }, 200);
+    });
   </script>
 </body>
 </html>
