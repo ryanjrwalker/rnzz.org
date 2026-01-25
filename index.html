@@ -1,28 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>RNZZ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0f1a;
-      color: #00e5ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    h1 {
-      font-size: 4rem;
-      letter-spacing: 4px;
-      text-shadow: 0 0 20px #00e5ff;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RNZZ Trade</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>RNZZ</h1>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">RNZZ</div>
+      <div class="sub">Virtual Skin Trading (Demo)</div>
+    </div>
+
+    <nav class="nav">
+      <a class="active" href="index.html">Market</a>
+      <a href="inventory.html">Inventory</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-head">
+        <h1>Market</h1>
+        <div class="actions">
+          <input id="search" class="input" placeholder="Search skins..." />
+          <select id="rarityFilter" class="input">
+            <option value="">All rarities</option>
+            <option>Consumer</option>
+            <option>Industrial</option>
+            <option>Mil-Spec</option>
+            <option>Restricted</option>
+            <option>Classified</option>
+            <option>Covert</option>
+          </select>
+          <button class="btn" id="seedBtn">Seed demo skins</button>
+        </div>
+      </div>
+
+      <div id="marketGrid" class="grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Your Listings</h2>
+        <div class="muted">Create listings from your inventory.</div>
+      </div>
+      <div id="listingsGrid" class="grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="muted">RNZZ Trade — basic HTML demo (no login, no real money)</span>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
