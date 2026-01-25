@@ -4,26 +4,62 @@
     <meta charset="UTF-8">
     <title>Noob Page</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-
         body {
-            display: flex;
-            justify-content: center; /* horizontal */
-            align-items: center;     /* vertical */
+            margin: 0;
+            overflow: hidden;
             background-color: #111;
-            color: #fff;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        h1 {
+        #text {
+            position: absolute;
             font-size: 3rem;
+            font-weight: bold;
+            white-space: nowrap;
+            text-shadow: 0 0 10px currentColor;
         }
     </style>
 </head>
 <body>
-    <h1>Josh Evzz is a noob</h1>
+
+<div id="text">Josh Evzz is a noob</div>
+
+<script>
+    const text = document.getElementById("text");
+
+    let x = 100;
+    let y = 100;
+    let vx = 2.5;
+    let vy = 2.5;
+    let hue = 0;
+
+    function animate() {
+        const rect = text.getBoundingClientRect();
+
+        x += vx;
+        y += vy;
+
+        // Bounce logic
+        if (x + rect.width >= window.innerWidth || x <= 0) {
+            vx *= -1;
+        }
+
+        if (y + rect.height >= window.innerHeight || y <= 0) {
+            vy *= -1;
+        }
+
+        // Colour shift
+        hue = (hue + 1) % 360;
+        text.style.color = `hsl(${hue}, 100%, 60%)`;
+
+        text.style.left = x + "px";
+        text.style.top = y + "px";
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+</script>
+
 </body>
 </html>
