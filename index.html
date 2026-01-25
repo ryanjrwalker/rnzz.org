@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Noob</title>
+    <title>Noob Chaos</title>
     <style>
         body {
             margin: 0;
@@ -16,61 +16,80 @@
             font-size: 3rem;
             font-weight: bold;
             white-space: nowrap;
-            text-shadow: 0 0 10px currentColor;
+            text-shadow: 0 0 12px currentColor;
             pointer-events: none;
+            will-change: transform;
         }
     </style>
 </head>
 <body>
 
 <script>
-    const texts = [];
-    const MAX_TEXTS = 50; // safety cap (remove if you want full chaos)
+    const items = [];
+    const MAX_ITEMS = 60;
 
-    function createText() {
-        if (texts.length >= MAX_TEXTS) return;
+    function rand(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function createNoob() {
+        if (items.length >= MAX_ITEMS) return;
 
         const el = document.createElement("div");
         el.className = "noob";
-        el.textContent = "Evzz is a noob";
+        el.textContent = "Josh Evzz is a noob";
         document.body.appendChild(el);
 
-        texts.push({
+        items.push({
             el,
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            vx: (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1),
-            vy: (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1),
-            hue: Math.random() * 360
+            x: rand(0, window.innerWidth),
+            y: rand(0, window.innerHeight),
+            vx: rand(-5, 5) || 2,
+            vy: rand(-5, 5) || -3,
+            hue: rand(0, 360),
+            rotation: rand(0, 360),
+            rotationSpeed: rand(-2, 2),
+            scale: rand(0.8, 1.3)
         });
     }
 
     function animate() {
-        texts.forEach(t => {
-            const rect = t.el.getBoundingClientRect();
+        items.forEach(i => {
+            const rect = i.el.getBoundingClientRect();
 
-            t.x += t.vx;
-            t.y += t.vy;
+            i.x += i.vx + rand(-0.2, 0.2);
+            i.y += i.vy + rand(-0.2, 0.2);
+            i.rotation += i.rotationSpeed;
 
-            if (t.x + rect.width >= window.innerWidth || t.x <= 0) t.vx *= -1;
-            if (t.y + rect.height >= window.innerHeight || t.y <= 0) t.vy *= -1;
+            // Bounce with random speed mutation
+            if (i.x <= 0 || i.x + rect.width >= window.innerWidth) {
+                i.vx *= rand(-1.2, -0.8);
+            }
 
-            t.hue = (t.hue + 1) % 360;
-            t.el.style.color = `hsl(${t.hue}, 100%, 60%)`;
+            if (i.y <= 0 || i.y + rect.height >= window.innerHeight) {
+                i.vy *= rand(-1.2, -0.8);
+            }
 
-            t.el.style.left = t.x + "px";
-            t.el.style.top = t.y + "px";
+            // Colour cycling
+            i.hue = (i.hue + rand(0.5, 2)) % 360;
+
+            i.el.style.color = `hsl(${i.hue}, 100%, 60%)`;
+            i.el.style.left = i.x + "px";
+            i.el.style.top = i.y + "px";
+            i.el.style.transform = `rotate(${i.rotation}deg) scale(${i.scale})`;
         });
 
         requestAnimationFrame(animate);
     }
 
-    // Start with one
-    createText();
+    // Start chaos
+    createNoob();
     animate();
 
-    // Multiply every 2 seconds
-    setInterval(createText, 2000);
+    // Multiply unpredictably
+    setInterval(() => {
+        if (Math.random() > 0.3) createNoob();
+    }, 1500);
 </script>
 
 </body>
