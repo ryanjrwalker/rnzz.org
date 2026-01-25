@@ -448,10 +448,89 @@ function drawCar(x,y,w,h,theme,isPlayer){
   ctx.fillRect(-w-8, h-24, 8, 14);
   ctx.fillRect(w, h-24, 8, 14);
 
-  // nitro flame
+    // nitro flame
   if (isPlayer && state.nitro.active){
     ctx.fillStyle = "rgba(0,229,255,0.65)";
     ctx.shadowColor = "rgba(0,229,255,0.9)";
     ctx.shadowBlur = 20;
+
+    // little animated flame out the back (bottom)
+    const flick = 6 + Math.sin(state.t * 30) * 3 + Math.random() * 2;
     ctx.beginPath();
-    ctx.moveTo(-
+    ctx.moveTo(-w*0.55,  h + 8);
+    ctx.lineTo( 0,      h + 8 + flick);
+    ctx.lineTo( w*0.55, h + 8);
+    ctx.closePath();
+    ctx.fill();
+
+    // inner flame
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = "rgba(229,231,235,0.55)";
+    ctx.beginPath();
+    ctx.moveTo(-w*0.32, h + 6);
+    ctx.lineTo( 0,      h + 6 + flick*0.75);
+    ctx.lineTo( w*0.32, h + 6);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+  }
+
+  ctx.restore();
+}
+
+function roundRect(x, y, w, h, r, fill){
+  const rr = Math.min(r, Math.abs(w)/2, Math.abs(h)/2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x,     y + h, rr);
+  ctx.arcTo(x,     y + h, x,     y,     rr);
+  ctx.arcTo(x,     y,     x + w, y,     rr);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  else ctx.stroke();
+}
+
+// ---- Main loop ----
+let last = performance.now();
+
+function frame(now){
+  const dt = Math.min(0.033, (now - last) / 1000); // cap dt for tab switches
+  last = now;
+
+  // update + draw
+  update(dt);
+  draw();
+
+  requestAnimationFrame(frame);
+}
+
+// ---- Optional: responsive canvas sizing (keeps gameplay consistent) ----
+// If you want fixed resolution, you can remove this.
+function fitCanvas(){
+  // keeps a nice aspect ratio on different screens
+  const maxW = 1100;
+  const pad = 16;
+  const w = Math.min(maxW, window.innerWidth - pad*2);
+  const h = Math.min(620, Math.max(480, Math.floor(w * 0.58)));
+
+  canvas.width = Math.floor(w * devicePixelRatio);
+  canvas.height = Math.floor(h * devicePixelRatio);
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
+
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+
+  // keep player anchored after resize
+  if (state?.car){
+    state.car.y = canvas.height / devicePixelRatio * 0.78;
+    state.car.x = track.cx();
+  }
+}
+
+// ---- Boot ----
+reset();
+fitCanvas();
+window.addEventListener("resize", fitCanvas);
+requestAnimationFrame(frame);
