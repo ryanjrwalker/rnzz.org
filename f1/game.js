@@ -23,7 +23,7 @@ const keys = new Set();
 window.addEventListener("keydown", (e) => {
   const k = e.key.toLowerCase();
   keys.add(k);
-  if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(e.key)) e.preventDefault();
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) e.preventDefault();
   if (k === "enter") start();
   if (k === "r") reset();
   if (e.key === " ") togglePause();
