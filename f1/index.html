@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RNZZ F1: Neon Grand Prix</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">RNZZ • NEON GRAND PRIX</div>
+      <div class="sub">Arrow keys / WASD • DRS/ERS: Space • Pit: P • Restart: R</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hud">
+      <div class="panel">
+        <div class="row">
+          <div class="label">Session</div>
+          <div class="value" id="session">QUALI</div>
+        </div>
+        <div class="row">
+          <div class="label">Speed</div>
+          <div class="value"><span id="speed">0</span> km/h</div>
+        </div>
+        <div class="row">
+          <div class="label">Lap</div>
+          <div class="value"><span id="lap">1</span> / 5</div>
+        </div>
+        <div class="row">
+          <div class="label">Position</div>
+          <div class="value"><span id="pos">20</span> / 20</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row">
+          <div class="label">DRS / ERS</div>
+          <div class="value">
+            <span class="pill" id="boostState">READY</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label">Tyres</div>
+          <div class="value">
+            <div class="bar"><div class="fill" id="tyreFill"></div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label">Damage</div>
+          <div class="value">
+            <div class="bar bar-red"><div class="fill" id="dmgFill"></div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="label">Weather</div>
+          <div class="value">
+            <button id="weatherBtn" class="btn btn-ghost" type="button">DRY</button>
+            <button id="startBtn" class="btn" type="button">START</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row">
+          <div class="label">Best</div>
+          <div class="value" id="best">—</div>
+        </div>
+        <div class="row">
+          <div class="label">Last</div>
+          <div class="value" id="last">—</div>
+        </div>
+        <div class="row">
+          <div class="label">Now</div>
+          <div class="value" id="now">—</div>
+        </div>
+        <div class="row">
+          <div class="label">Tips</div>
+          <div class="value muted">
+            Stay on track, draft to charge DRS, pit to restore tyres/damage.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gameShell">
+      <canvas id="c" width="980" height="560"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="title" id="ovTitle">NEON GRAND PRIX</div>
+        <div class="subtitle" id="ovSub">Press START to begin • Space for DRS/ERS</div>
+        <div class="controls">
+          <span><b>Steer</b> WASD / Arrows</span>
+          <span><b>Boost</b> Space</span>
+          <span><b>Pit</b> P (in pit lane)</span>
+          <span><b>Restart</b> R</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="muted">Pure HTML Canvas game • Local high scores only • rnzz.org</span>
+  </footer>
+
+  <script src="game.js"></script>
+</body>
+</html>
