@@ -2,63 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Noob Page</title>
+    <title>Noob</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #111;
+            background: #111;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        #text {
+        .noob {
             position: absolute;
             font-size: 3rem;
             font-weight: bold;
             white-space: nowrap;
             text-shadow: 0 0 10px currentColor;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-<div id="text">Josh Evzz is a noob</div>
-
 <script>
-    const text = document.getElementById("text");
+    const texts = [];
+    const MAX_TEXTS = 50; // safety cap (remove if you want full chaos)
 
-    let x = 100;
-    let y = 100;
-    let vx = 2.5;
-    let vy = 2.5;
-    let hue = 0;
+    function createText() {
+        if (texts.length >= MAX_TEXTS) return;
+
+        const el = document.createElement("div");
+        el.className = "noob";
+        el.textContent = "Evzz is a noob";
+        document.body.appendChild(el);
+
+        texts.push({
+            el,
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            vx: (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1),
+            vy: (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1),
+            hue: Math.random() * 360
+        });
+    }
 
     function animate() {
-        const rect = text.getBoundingClientRect();
+        texts.forEach(t => {
+            const rect = t.el.getBoundingClientRect();
 
-        x += vx;
-        y += vy;
+            t.x += t.vx;
+            t.y += t.vy;
 
-        // Bounce logic
-        if (x + rect.width >= window.innerWidth || x <= 0) {
-            vx *= -1;
-        }
+            if (t.x + rect.width >= window.innerWidth || t.x <= 0) t.vx *= -1;
+            if (t.y + rect.height >= window.innerHeight || t.y <= 0) t.vy *= -1;
 
-        if (y + rect.height >= window.innerHeight || y <= 0) {
-            vy *= -1;
-        }
+            t.hue = (t.hue + 1) % 360;
+            t.el.style.color = `hsl(${t.hue}, 100%, 60%)`;
 
-        // Colour shift
-        hue = (hue + 1) % 360;
-        text.style.color = `hsl(${hue}, 100%, 60%)`;
-
-        text.style.left = x + "px";
-        text.style.top = y + "px";
+            t.el.style.left = t.x + "px";
+            t.el.style.top = t.y + "px";
+        });
 
         requestAnimationFrame(animate);
     }
 
+    // Start with one
+    createText();
     animate();
+
+    // Multiply every 2 seconds
+    setInterval(createText, 2000);
 </script>
 
 </body>
